@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鹅腿鸭！</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #F5F5F5;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            background-color: #fff;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* 进度条 */
+        .progress-bar {
+            height: 4px;
+            background-color: #E0E0E0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #D85A30;
+            transition: width 0.3s ease;
+        }
+
+        /* 页面通用样式 */
+        .page {
+            padding: 30px 20px;
+            min-height: 100vh;
+            padding-top: 40px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            color: #666;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .page-desc {
+            font-size: 14px;
+            color: #888;
+            text-align: center;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #F9F9F9;
+            border-radius: 12px;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            background-color: #D85A30;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #C04A20;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        /* 模式选择样式 */
+        .mode-select {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .mode-hint {
+            font-size: 14px;
+            color: #888;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .btn-primary {
+            background-color: #D85A30;
+            color: #fff;
+        }
+
+        .btn-secondary {
+            background-color: #fff;
+            color: #D85A30;
+            border: 2px solid #D85A30;
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(216, 90, 48, 0.1);
+        }
+
+        .mode-desc {
+            font-size: 13px;
+            color: #999;
+            text-align: center;
+            line-height: 1.6;
+            margin-top: 10px;
+        }
+
+        /* 关卡通用样式 */
+        .level-header {
+            margin-bottom: 25px;
+        }
+
+        .level-progress {
+            font-size: 14px;
+            color: #888;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .level-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .level-desc {
+            font-size: 16px;
+            color: #666;
+            text-align: center;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        /* 选项样式 */
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option {
+            padding: 20px;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option:hover {
+            border-color: #D85A30;
+        }
+
+        .option.selected {
+            border-color: #D85A30;
+            background-color: rgba(216, 90, 48, 0.05);
+        }
+
+        .option-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .option-letter {
+            width: 32px;
+            height: 32px;
+            background-color: #D85A30;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .option-color {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+        }
+
+        .option-color-red {
+            background-color: #8B2500;
+        }
+
+        .option-color-pink {
+            background-color: #F4A58A;
+        }
+
+        .option-icon-large {
+            font-size: 28px;
+        }
+
+        .option-icon-small {
+            font-size: 18px;
+        }
+
+        .option-text {
+            font-size: 15px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .option-text p {
+            margin-bottom: 5px;
+        }
+
+        .option-text p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* 内联反馈样式 */
+        .inline-feedback {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #F9F9F9;
+            border-radius: 12px;
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .feedback-icon-inline {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .feedback-title-inline {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .feedback-desc-inline {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .next-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #D85A30;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .next-btn:hover {
+            background-color: #C04A20;
+        }
+
+        /* 学习完成页面样式 */
+        .learn-complete-icon {
+            font-size: 80px;
+            text-align: center;
+            margin-bottom: 20px;
+            animation: bounce 1s ease infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .learn-complete-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .learn-complete-desc {
+            font-size: 16px;
+            color: #666;
+            text-align: center;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            padding: 0 20px;
+        }
+
+        /* 第5关样式 */
+        .level5-header {
+            margin-bottom: 20px;
+        }
+
+        .level5-subtitle {
+            font-size: 13px;
+            color: #888;
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 25px;
+        }
+
+        .grid-item {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.2s;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .grid-item:hover {
+            transform: scale(1.02);
+        }
+
+        .grid-item.selected {
+            border-color: #D85A30;
+            box-shadow: 0 0 0 2px rgba(216, 90, 48, 0.3);
+        }
+
+        .grid-item.goose {
+            background-color: #8B2500;
+        }
+
+        .grid-item.duck {
+            background-color: #F4A58A;
+        }
+
+        .submit-area {
+            text-align: center;
+        }
+
+        .submit-btn {
+            display: inline-block;
+            padding: 14px 40px;
+            background-color: #D85A30;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .submit-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* 结果页样式 */
+        .result-page {
+            padding-bottom: 100px;
+        }
+
+        .result-score {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .score-number {
+            font-size: 72px;
+            font-weight: bold;
+            color: #D85A30;
+            line-height: 1;
+        }
+
+        .score-label {
+            font-size: 16px;
+            color: #888;
+            margin-top: 10px;
+        }
+
+        .result-card {
+            background-color: #fff;
+            border: 1px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .result-icon {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .result-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .result-desc {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.8;
+            text-align: center;
+        }
+
+        /* 段位图标 SVG */
+        .rank-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto;
+        }
+
+        /* 知识卡片 */
+        .knowledge-card {
+            background: linear-gradient(135deg, #D85A30 0%, #E87A50 100%);
+            border-radius: 12px;
+            padding: 25px;
+            color: #fff;
+        }
+
+        .knowledge-title {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .knowledge-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .knowledge-item {
+            display: flex;
+            gap: 12px;
+        }
+
+        .knowledge-num {
+            width: 28px;
+            height: 28px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .knowledge-content {
+            font-size: 14px;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+
+        .knowledge-content strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 15px;
+        }
+
+        /* 重新开始按钮 */
+        .restart-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 40px);
+            max-width: 400px;
+            padding: 16px;
+            background-color: #D85A30;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* 隐藏元素 */
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <!-- 开始页 -->
+        <div id="startPage" class="page">
+            <h1 class="page-title">请挑选你的鹅腿！</h1>
+            <p class="page-subtitle">北大清华学生吃了三年没吃出来，你能行吗？</p>
+            <p class="page-desc">2026年6月，走红三年的「鹅腿阿姨」被曝光：卖的根本不是鹅腿，而是鸭腿。鲜鹅腿价格是鸭腿的7.5倍。全网震惊——原来我们都被骗了。</p>
+            
+            <div class="mode-select">
+                <p class="mode-hint">选择开始方式</p>
+                <button class="btn btn-primary" onclick="startLearnMode()">📚 先学后测（推荐）</button>
+                <button class="btn btn-secondary" onclick="startTestMode()">🎯 直接挑战</button>
+                <p class="mode-desc">先学后测：学习辨别技巧后再测试<br>直接挑战：适合自信的玩家</p>
+            </div>
+        </div>
+
+        <!-- 第1关：价格之谜 -->
+        <div id="level1" class="page hidden">
+            <div class="level-header">
+                <div class="level-progress">第 1 关 / 共 5 关</div>
+                <h2 class="level-title">价格之谜</h2>
+                <p class="level-desc">鹅腿阿姨的腿卖16元一根。早在2023年就有网友质疑，你怎么看？</p>
+            </div>
+            <div class="options" id="level1Options">
+                <div class="option" onclick="selectOption(1, 'A')">
+                    <div class="option-header">
+                        <span class="option-letter">A</span>
+                    </div>
+                    <div class="option-text">
+                        <p>完全正常，街边小摊嘛</p>
+                        <p>16元买一根鹅腿挺划算的</p>
+                    </div>
+                </div>
+                <div class="option" onclick="selectOption(1, 'B')">
+                    <div class="option-header">
+                        <span class="option-letter">B</span>
+                    </div>
+                    <div class="option-text">
+                        <p>这价格很可疑</p>
+                        <p>真鹅腿的成本根本不止16元</p>
+                    </div>
+                </div>
+            </div>
+            <div id="level1Feedback" class="inline-feedback hidden">
+                <div class="feedback-icon-inline" id="level1Icon">✅</div>
+                <div class="feedback-title-inline" id="level1Title">反馈标题</div>
+                <div class="feedback-desc-inline" id="level1Desc">反馈描述</div>
+                <button class="next-btn" onclick="goToLevel(2)">下一题</button>
+            </div>
+        </div>
+
+        <!-- 第2关：颜色之谜 -->
+        <div id="level2" class="page hidden">
+            <div class="level-header">
+                <div class="level-progress">第 2 关 / 共 5 关</div>
+                <h2 class="level-title">颜色之谜</h2>
+                <p class="level-desc">切开腿肉，两种颜色摆在眼前。哪种颜色是鹅腿肉？</p>
+            </div>
+            <div class="options" id="level2Options">
+                <div class="option" onclick="selectOption(2, 'A')">
+                    <div class="option-header">
+                        <span class="option-letter">A</span>
+                        <span class="option-color option-color-red"></span>
+                    </div>
+                    <div class="option-text">
+                        <p>深红色，接近牛肉的颜色</p>
+                        <p>肉眼看上去颜色很深</p>
+                    </div>
+                </div>
+                <div class="option" onclick="selectOption(2, 'B')">
+                    <div class="option-header">
+                        <span class="option-letter">B</span>
+                        <span class="option-color option-color-pink"></span>
+                    </div>
+                    <div class="option-text">
+                        <p>浅粉色，接近鸡肉的颜色</p>
+                        <p>颜色均匀，看起来很嫩</p>
+                    </div>
+                </div>
+            </div>
+            <div id="level2Feedback" class="inline-feedback hidden">
+                <div class="feedback-icon-inline" id="level2Icon">✅</div>
+                <div class="feedback-title-inline" id="level2Title">反馈标题</div>
+                <div class="feedback-desc-inline" id="level2Desc">反馈描述</div>
+                <button class="next-btn" onclick="goToLevel(3)">下一题</button>
+            </div>
+        </div>
+
+        <!-- 第3关：口感之谜 -->
+        <div id="level3" class="page hidden">
+            <div class="level-header">
+                <div class="level-progress">第 3 关 / 共 5 关</div>
+                <h2 class="level-title">口感之谜</h2>
+                <p class="level-desc">终于咬下去了。下面哪个描述的是鹅腿的口感？</p>
+            </div>
+            <div class="options" id="level3Options">
+                <div class="option" onclick="selectOption(3, 'A')">
+                    <div class="option-header">
+                        <span class="option-letter">A</span>
+                    </div>
+                    <div class="option-text">
+                        <p>肉质紧实，纤维感明显</p>
+                        <p>越嚼越香，有嚼劲，停不下来</p>
+                    </div>
+                </div>
+                <div class="option" onclick="selectOption(3, 'B')">
+                    <div class="option-header">
+                        <span class="option-letter">B</span>
+                    </div>
+                    <div class="option-text">
+                        <p>肉质细嫩顺滑，纤维感弱</p>
+                        <p>入口即化，轻松咬断</p>
+                    </div>
+                </div>
+            </div>
+            <div id="level3Feedback" class="inline-feedback hidden">
+                <div class="feedback-icon-inline" id="level3Icon">✅</div>
+                <div class="feedback-title-inline" id="level3Title">反馈标题</div>
+                <div class="feedback-desc-inline" id="level3Desc">反馈描述</div>
+                <button class="next-btn" onclick="goToLevel(4)">下一题</button>
+            </div>
+        </div>
+
+        <!-- 第4关：尺寸之谜 -->
+        <div id="level4" class="page hidden">
+            <div class="level-header">
+                <div class="level-progress">第 4 关 / 共 5 关</div>
+                <h2 class="level-title">尺寸之谜</h2>
+                <p class="level-desc">鹅腿阿姨的后厨里，今天到了两批腿。哪一批才是真正的鹅腿？</p>
+            </div>
+            <div class="options" id="level4Options">
+                <div class="option" onclick="selectOption(4, 'A')">
+                    <div class="option-header">
+                        <span class="option-letter">A</span>
+                        <span class="option-icon-large">🦴</span>
+                    </div>
+                    <div class="option-text">
+                        <p>腿型修长，骨骼粗壮</p>
+                        <p>切开后肉层厚实，一根沉甸甸的</p>
+                    </div>
+                </div>
+                <div class="option" onclick="selectOption(4, 'B')">
+                    <div class="option-header">
+                        <span class="option-letter">B</span>
+                        <span class="option-icon-small">🦴</span>
+                    </div>
+                    <div class="option-text">
+                        <p>腿型短小紧凑，骨头纤细</p>
+                        <p>一只手就能轻松握住</p>
+                    </div>
+                </div>
+            </div>
+            <div id="level4Feedback" class="inline-feedback hidden">
+                <div class="feedback-icon-inline" id="level4Icon">🤔</div>
+                <div class="feedback-title-inline" id="level4Title">反馈标题</div>
+                <div class="feedback-desc-inline" id="level4Desc">反馈描述</div>
+                <button class="next-btn" onclick="showLearnComplete()">完成学习</button>
+            </div>
+        </div>
+
+        <!-- 学习完成提示页 -->
+        <div id="learnCompletePage" class="page hidden">
+            <div class="learn-complete-icon">📚</div>
+            <h2 class="learn-complete-title">学习完成！</h2>
+            <p class="learn-complete-desc">你已经掌握了鹅腿和鸭腿的区别，现在来实战测试一下吧！</p>
+            <button class="btn btn-primary" onclick="startTest()">开始测试</button>
+        </div>
+
+        <!-- 第5关：终极找腿关 -->
+        <div id="level5" class="page hidden">
+            <div class="level5-header">
+                <div class="level-progress">第 5 关 / 共 5 关（最终关）</div>
+                <h2 class="level-title">请挑选你的鹅腿！</h2>
+                <p class="level-desc">鹅腿阿姨的后厨被查封前，留下了最后一批腿。20根里混入了鸭腿——请把所有鹅腿点出来！</p>
+                <p class="level5-subtitle">（提示：鹅腿更大、骨骼更粗、颜色更深）</p>
+            </div>
+            <div class="grid-container" id="gridContainer"></div>
+            <div class="submit-area">
+                <button class="submit-btn" id="submitBtn" disabled onclick="submitLevel5()">提交答案</button>
+            </div>
+        </div>
+
+        <!-- 结果页 -->
+        <div id="resultPage" class="page result-page hidden">
+            <div class="result-score">
+                <div class="score-number" id="scoreNumber">0</div>
+                <div class="score-label">你的成绩</div>
+            </div>
+            <div class="result-card" id="resultCard">
+                <div class="result-icon" id="resultIcon">
+                    <svg class="rank-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- 默认奖杯图标 -->
+                        <path d="M32 4L16 20v24c0 8.8 7.2 16 16 16s16-7.2 16-16V20L32 4z" fill="#FFD700"/>
+                        <path d="M32 12v36c0 6.6-5.4 12-12 12H20v-8h4v-4h-4v-4h4v-4h-4v-4h4v-4h-4v-4h4v-4h4v-4h-4V8l8-8 8 8v4h-4v4h4v4h-4v4h4v4h-4v4h4v4h-4v4h4v8h-4c-6.6 0-12-5.4-12-12V12z" fill="#FFA500"/>
+                    </svg>
+                </div>
+                <h2 class="result-title" id="resultTitle">段位标题</h2>
+                <p class="result-desc" id="resultDesc">段位描述</p>
+            </div>
+            <div class="knowledge-card">
+                <h3 class="knowledge-title">3秒辨鹅鸭，下次不再被骗</h3>
+                <div class="knowledge-list">
+                    <div class="knowledge-item">
+                        <span class="knowledge-num">①</span>
+                        <div class="knowledge-content">
+                            <strong>看大小</strong>
+                            鹅腿比鸭腿大一圈，骨骼粗壮肉层厚，拿在手里沉甸甸。鸭腿骨头纤细，体型明显偏小。
+                        </div>
+                    </div>
+                    <div class="knowledge-item">
+                        <span class="knowledge-num">②</span>
+                        <div class="knowledge-content">
+                            <strong>看颜色</strong>
+                            鹅肉深红色，接近牛肉；鸭肉浅粉色，接近鸡肉。切开一看，颜色完全不同。
+                        </div>
+                    </div>
+                    <div class="knowledge-item">
+                        <span class="knowledge-num">③</span>
+                        <div class="knowledge-content">
+                            <strong>看价格</strong>
+                            批发价：鸭腿约2.5元/个，鹅腿成本是鸭腿的4-7倍。16元一根的「鹅腿」？大概率是鸭腿。
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="restart-btn" onclick="restartGame()">再来一次</button>
+        </div>
+    </div>
+
+    <script>
+        // 游戏状态
+        let currentLevel = 0;
+        let score = 0;
+        let selectedAnswers = {};
+        let level5Grid = [];
+        let level5Selected = [];
+        let gameMode = ''; // 'learn' | 'test'
+        let hasCompletedLearning = false;
+
+        // 第5关：8根鹅腿的位置（随机分布）
+        function generateLevel5Grid() {
+            const grid = [];
+            const goosePositions = [];
+            // 随机选择8个位置放鹅腿
+            while (goosePositions.length < 8) {
+                const pos = Math.floor(Math.random() * 20);
+                if (!goosePositions.includes(pos)) {
+                    goosePositions.push(pos);
+                }
+            }
+            for (let i = 0; i < 20; i++) {
+                grid.push(goosePositions.includes(i) ? 'goose' : 'duck');
+            }
+            return grid;
+        }
+
+        // 关卡数据
+        const levels = {
+            1: {
+                correct: 'B',
+                feedback: {
+                    A: {
+                        icon: '❌',
+                        title: '答错了！',
+                        desc: '这正是大多数顾客的想法，也正因为这样大家都被骗了。北京新发地市场数据：鸭腿批发价约2.5元/个，鲜鹅腿零售价高达44-66元/斤，一根鹅腿成本远超16元，16元卖的只可能是鸭腿。'
+                    },
+                    B: {
+                        icon: '✅',
+                        title: '答对了！',
+                        desc: '你比北大学生更懂行情。北京新发地批发数据：鸭腿批发价约2.5元/个，鲜鹅腿零售高达44-66元/斤。16元的「鹅腿」，成本核算根本不可能是真鹅腿。早在2023年就有网友指出这一点，只是当时没人信。'
+                    }
+                }
+            },
+            2: {
+                correct: 'A',
+                feedback: {
+                    A: {
+                        icon: '✅',
+                        title: '答对了！',
+                        desc: '鹅是大型禽类，运动量更大，肌红蛋白含量更高，所以肉色深红。鸭肉颜色浅，很多人以为是鸡肉。'
+                    },
+                    B: {
+                        icon: '❌',
+                        title: '答错了！',
+                        desc: '浅粉色是鸭腿肉。鹅腿肉色深红，接近牛肉颜色，纤维较粗，一眼就能看出和鸭肉的区别。'
+                    }
+                }
+            },
+            3: {
+                correct: 'A',
+                feedback: {
+                    A: {
+                        icon: '✅',
+                        title: '答对了！',
+                        desc: '鹅的生长周期比鸭长，肌肉纤维更粗，吃起来嚼劲十足。鸭肉更嫩更细腻。顺带一提——鹅腿阿姨的学生顾客吃了三年「有嚼劲的鸭腿」，一直以为自己在吃鹅腿。'
+                    },
+                    B: {
+                        icon: '❌',
+                        title: '答错了！',
+                        desc: '那是鸭腿的口感。鹅腿纤维更粗，嚼劲十足，绝不会「入口即化」。正因为鸭肉也有一定嚼劲，北大学生才被骗了三年。'
+                    }
+                }
+            },
+            4: {
+                correct: null,
+                feedback: {
+                    any: {
+                        icon: '🤔',
+                        title: '鹅腿阿姨的后厨里没有鹅腿~',
+                        desc: '原来阿姨进的货全都是鸭腿！真正的鹅腿根本不会出现在这里——成本太高了。让我们继续学习如何辨别吧！'
+                    }
+                }
+            }
+        };
+
+        // 段位数据
+        const ranks = [
+            {
+                min: 6,
+                max: 8,
+                name: '鹅腿鉴定师',
+                icon: '<svg class="rank-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M32 4L16 20v24c0 8.8 7.2 16 16 16s16-7.2 16-16V20L32 4z" fill="#FFD700"/><path d="M32 12v36c0 6.6-5.4 12-12 12H20v-8h4v-4h-4v-4h4v-4h-4v-4h4v-4h-4v-4h4v-4h4v-4h-4V8l8-8 8 8v4h-4v4h4v4h-4v4h4v4h-4v4h4v4h-4v4h4v8h-4c-6.6 0-12-5.4-12-12V12z" fill="#FFA500"/></svg>',
+                title: '恭喜！你是天生的鹅腿鉴定师',
+                desc: '北大清华学生吃了三年没吃出来的东西，你一眼就看穿了。鹅腿阿姨见到你只能绕道走。你的味觉和眼力，值这个价。'
+            },
+            {
+                min: 2,
+                max: 5,
+                name: '资深吃货',
+                icon: '<svg class="rank-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 44h-8v-8h8v8zm0-16h-8v-8h8v8zm16 16h-8v-8h8v8zm0-16h-8v-8h8v8z" fill="#D85A30"/><path d="M48 20c-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8zm0 12c-2.2 0-4-1.8-4-4s1.8-4 4-4 4 1.8 4 4-1.8 4-4 4z" fill="#D85A30"/></svg>',
+                title: '不错！你比大多数学生更懂吃',
+                desc: '眼力相当不错，大部分题都答对了。下次在街边买烤腿，记得仔细掂一掂、看一看颜色——别再被「鹅腿阿姨」们骗了。'
+            },
+            {
+                min: -2,
+                max: 1,
+                name: '普通学生',
+                icon: '<svg class="rank-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M48 8H16c-4.4 0-8 3.6-8 8v32c0 4.4 3.6 8 8 8h32c4.4 0 8-3.6 8-8V16c0-4.4-3.6-8-8-8z" fill="#4A90D9"/><path d="M24 40H16v-8h8v8zm0-12H16v-8h8v8zm16 12h-8v-8h8v8zm0-12h-8v-8h8v8z" fill="#fff"/></svg>',
+                title: '及格——和北大学生差不多',
+                desc: '你和那些排队买鹅腿的学生处于同一水平线上。吃了也许能吃出点不对劲，但不敢确定，最后还是咽下去了。——就这样被骗了三年。'
+            },
+            {
+                min: -7,
+                max: -3,
+                name: '味觉钝感者',
+                icon: '<svg class="rank-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="24" fill="#FFD93D"/><path d="M32 20v24M20 32h24" stroke="#333" stroke-width="4" stroke-linecap="round"/></svg>',
+                title: '呃……你可能真的吃不出来',
+                desc: '鹅腿阿姨最喜欢的顾客类型。端上来什么吃什么，从不多问。你的钱包，是老板们的快乐源泉。'
+            },
+            {
+                min: -12,
+                max: -8,
+                name: '行走的冤大头',
+                icon: '<svg class="rank-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="24" fill="#FF6B6B"/><path d="M24 28c-2 2-4 4-4 8s2 6 4 8 4-2 4-6-2-6-4-8zm16 0c2 2 4 4 4 8s-2 6-4 8-4-2-4-6 2-6 4-8z" fill="#fff"/><path d="M20 36h24" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>',
+                title: '建议你去检查一下家里的「鹅腿」',
+                desc: '你可能已经吃了很多年「鹅腿」，但其实都是鸭腿。没关系，不是你的错——是市场太复杂。但从今天起，你已经知道该怎么辨别了。'
+            }
+        ];
+
+        // 更新进度条
+        function updateProgress() {
+            if (gameMode === 'learn') {
+                // 学习模式：前4关是学习，第5关是测试
+                if (currentLevel <= 4) {
+                    const progress = (currentLevel / 4) * 100;
+                    document.getElementById('progressFill').style.width = progress + '%';
+                } else {
+                    document.getElementById('progressFill').style.width = '100%';
+                }
+            } else {
+                // 测试模式：直接显示完成
+                document.getElementById('progressFill').style.width = '100%';
+            }
+        }
+
+        // 显示页面
+        function showPage(pageId) {
+            const pages = ['startPage', 'level1', 'level2', 'level3', 'level4', 'learnCompletePage', 'level5', 'resultPage'];
+            pages.forEach(page => {
+                const elem = document.getElementById(page);
+                if (elem) {
+                    elem.classList.add('hidden');
+                }
+            });
+            document.getElementById(pageId).classList.remove('hidden');
+        }
+
+        // 显示学习完成页面
+        function showLearnComplete() {
+            hasCompletedLearning = true;
+            showPage('learnCompletePage');
+        }
+
+        // 开始测试（从学习完成页进入）
+        function startTest() {
+            currentLevel = 5;
+            score = 0;
+            updateProgress();
+            initLevel5();
+            showPage('level5');
+        }
+
+        // 开始学习模式
+        function startLearnMode() {
+            gameMode = 'learn';
+            hasCompletedLearning = false;
+            currentLevel = 1;
+            score = 0;
+            selectedAnswers = {};
+            updateProgress();
+            showPage('level1');
+        }
+
+        // 开始测试模式
+        function startTestMode() {
+            gameMode = 'test';
+            hasCompletedLearning = true;
+            currentLevel = 5;
+            score = 0;
+            updateProgress();
+            initLevel5();
+            showPage('level5');
+        }
+
+        // 选择选项
+        function selectOption(level, answer) {
+            selectedAnswers[level] = answer;
+            
+            const levelData = levels[level];
+            let feedback;
+            
+            // 如果 correct 为 null，使用 any 反馈（适用于第4关尺寸之谜）
+            if (levelData.correct === null) {
+                feedback = levelData.feedback.any;
+            } else {
+                feedback = levelData.feedback[answer];
+                // 计算分数（第1-4关不计分）
+                if (answer === levelData.correct) {
+                    // 第2-4关不计分
+                }
+            }
+            
+            // 显示内联反馈
+            showInlineFeedback(feedback, level);
+        }
+
+        // 显示内联反馈
+        function showInlineFeedback(feedback, level) {
+            // 显示反馈
+            const feedbackDiv = document.getElementById(`level${level}Feedback`);
+            document.getElementById(`level${level}Icon`).textContent = feedback.icon;
+            document.getElementById(`level${level}Title`).textContent = feedback.title;
+            document.getElementById(`level${level}Desc`).textContent = feedback.desc;
+            feedbackDiv.classList.remove('hidden');
+            
+            // 禁用选项点击
+            const optionsDiv = document.getElementById(`level${level}Options`);
+            const options = optionsDiv.querySelectorAll('.option');
+            options.forEach(opt => {
+                opt.style.pointerEvents = 'none';
+            });
+        }
+
+        // 关闭反馈弹窗
+        function closeFeedback() {
+            document.getElementById('feedbackOverlay').classList.add('hidden');
+        }
+
+        // 进入指定关卡
+        function goToLevel(level) {
+            currentLevel = level;
+            updateProgress();
+            
+            if (level === 5) {
+                initLevel5();
+            }
+            
+            showPage('level' + level);
+            
+            // 重置当前关卡的选项状态
+            resetLevelOptions(level);
+        }
+
+        // 重置关卡选项状态
+        function resetLevelOptions(level) {
+            // 隐藏反馈区域
+            const feedbackDiv = document.getElementById(`level${level}Feedback`);
+            if (feedbackDiv) {
+                feedbackDiv.classList.add('hidden');
+            }
+            
+            // 启用选项点击
+            const optionsDiv = document.getElementById(`level${level}Options`);
+            if (optionsDiv) {
+                const options = optionsDiv.querySelectorAll('.option');
+                options.forEach(opt => {
+                    opt.style.pointerEvents = 'auto';
+                });
+            }
+        }
+
+        // 鹅腿和鸭腿的SVG图标（备用）
+        const gooseSVG = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cellipse cx='50' cy='50' rx='35' ry='45' fill='%238B2500'/%3E%3Cellipse cx='50' cy='50' rx='25' ry='35' fill='%23A04000'/%3E%3Crect x='45' y='5' width='10' height='20' rx='3' fill='%23C4A484'/%3E%3Ccircle cx='50' cy='5' r='6' fill='%23D4B896'/%3E%3Cellipse cx='35' cy='50' rx='10' ry='25' fill='%236B1F00' opacity='0.3'/%3E%3C/svg%3E`;
+        const duckSVG = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cellipse cx='50' cy='50' rx='28' ry='36' fill='%23F4A58A'/%3E%3Cellipse cx='50' cy='50' rx='20' ry='28' fill='%23F8C4A8'/%3E%3Crect x='45' y='8' width='10' height='16' rx='2' fill='%23D4B896'/%3E%3Ccircle cx='50' cy='8' r='5' fill='%23E0C8A0'/%3E%3Cellipse cx='38' cy='50' rx='8' ry='20' fill='%23D99580' opacity='0.3'/%3E%3C/svg%3E`;
+
+        // 图片配置
+        const gooseImages = [
+            { path: './images/goose01.jpg', type: 'goose' },
+            { path: './images/goose02.jpg', type: 'goose' },
+            { path: './images/goose03.png', type: 'goose' },
+            { path: './images/goose04.png', type: 'goose' },
+            { path: './images/goose05.png', type: 'goose' },
+            { path: './images/goose06.png', type: 'goose' },
+            { path: './images/goose07.png', type: 'goose' },
+            { path: './images/goose08.png', type: 'goose' }
+        ];
+        const duckImages = [
+            { path: './images/duck01.png', type: 'duck' },
+            { path: './images/duck02.png', type: 'duck' },
+            { path: './images/duck03.png', type: 'duck' },
+            { path: './images/duck04.png', type: 'duck' },
+            { path: './images/duck05.png', type: 'duck' },
+            { path: './images/duck06.png', type: 'duck' },
+            { path: './images/duck07.png', type: 'duck' },
+            { path: './images/duck08.png', type: 'duck' },
+            { path: './images/duck09.png', type: 'duck' },
+            { path: './images/duck10.png', type: 'duck' },
+            { path: './images/duck11.png', type: 'duck' },
+            { path: './images/duck12.png', type: 'duck' }
+        ];
+
+        // 洗牌算法
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // 初始化第5关
+        function initLevel5() {
+            // 合并所有图片并打乱顺序
+            const allImages = [...gooseImages, ...duckImages];
+            level5Grid = shuffleArray(allImages);
+            level5Selected = new Array(20).fill(false);
+            
+            const gridContainer = document.getElementById('gridContainer');
+            gridContainer.innerHTML = '';
+            
+            level5Grid.forEach((imageData, index) => {
+                const item = document.createElement('div');
+                item.className = `grid-item ${imageData.type}`;
+                item.onclick = function() {
+                    toggleLevel5Item(index);
+                };
+                
+                // 使用对应的图片路径
+                item.style.backgroundImage = `url(${imageData.path})`;
+                item.style.backgroundSize = 'cover';
+                item.style.backgroundPosition = 'center';
+                item.dataset.imagePath = imageData.path;
+                
+                // 图片加载失败时使用备用背景
+                const img = new Image();
+                img.onload = () => {};
+                img.onerror = () => {
+                    item.style.backgroundImage = 'none';
+                    item.style.backgroundColor = imageData.type === 'goose' ? '#8B2500' : '#F4A58A';
+                };
+                img.src = imageData.path;
+                
+                gridContainer.appendChild(item);
+            });
+            
+            document.getElementById('submitBtn').disabled = true;
+        }
+
+        // 切换第5关选中状态
+        function toggleLevel5Item(index) {
+            level5Selected[index] = !level5Selected[index];
+            const item = document.getElementById('gridContainer').children[index];
+            
+            if (level5Selected[index]) {
+                item.classList.add('selected');
+            } else {
+                item.classList.remove('selected');
+            }
+            
+            // 检查是否有选中项
+            const hasSelected = level5Selected.some(s => s);
+            document.getElementById('submitBtn').disabled = !hasSelected;
+        }
+
+        // 提交第5关答案
+        function submitLevel5() {
+            let correctCount = 0;
+            let wrongCount = 0;
+            
+            level5Selected.forEach((selected, index) => {
+                if (selected) {
+                    if (level5Grid[index].type === 'goose') {
+                        correctCount++;
+                    } else {
+                        wrongCount++;
+                    }
+                }
+            });
+            
+            // 计算第5关分数（允许负分）
+            const level5Score = correctCount - wrongCount;
+            score = level5Score;
+            
+            showResult();
+        }
+
+        // 显示结果页
+        function showResult() {
+            currentLevel = 6;
+            updateProgress();
+            
+            // 显示分数
+            document.getElementById('scoreNumber').textContent = score;
+            
+            // 确定段位
+            let rank = ranks[4]; // 默认最低段位
+            for (const r of ranks) {
+                if (score >= r.min && score <= r.max) {
+                    rank = r;
+                    break;
+                }
+            }
+            
+            // 设置段位信息
+            document.getElementById('resultIcon').innerHTML = rank.icon;
+            document.getElementById('resultTitle').textContent = rank.title;
+            document.getElementById('resultDesc').textContent = rank.desc;
+            
+            showPage('resultPage');
+        }
+
+        // 重新开始
+        function restartGame() {
+            currentLevel = 0;
+            score = 0;
+            selectedAnswers = {};
+            gameMode = '';
+            hasCompletedLearning = false;
+            updateProgress();
+            showPage('startPage');
+        }
+
+        // 初始化
+        updateProgress();
+    </script>
+</body>
+</html>
