@@ -352,6 +352,7 @@
             transition: all 0.2s;
             background-size: cover;
             background-position: center;
+            position: relative;
         }
 
         .grid-item:hover {
@@ -359,16 +360,34 @@
         }
 
         .grid-item.selected {
-            border-color: #D85A30;
-            box-shadow: 0 0 0 2px rgba(216, 90, 48, 0.3);
+            border: 3px solid #D85A30;
+            box-shadow: 0 0 0 2px rgba(216, 90, 48, 0.4);
         }
 
-        .grid-item.goose {
-            background-color: #8B2500;
+        .grid-item.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 28px;
+            height: 28px;
+            background: #D85A30;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
 
-        .grid-item.duck {
-            background-color: #F4A58A;
+        .grid-item.typeA {
+            background-color: #E0E0E0;
+        }
+
+        .grid-item.typeB {
+            background-color: #E0E0E0;
         }
 
         .submit-area {
@@ -403,9 +422,9 @@
         }
 
         .score-number {
-            font-size: 72px;
+            font-size: 24px;
             font-weight: bold;
-            color: #D85A30;
+            color: #000;
             line-height: 1;
         }
 
@@ -420,6 +439,14 @@
             border: 1px solid #E0E0E0;
             border-radius: 12px;
             padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .result-rank-name {
+            font-size: 72px;
+            font-weight: bold;
+            color: #D85A30;
+            text-align: center;
             margin-bottom: 20px;
         }
 
@@ -567,7 +594,7 @@
                     </div>
                     <div class="option-text">
                         <p>这价格很可疑</p>
-                        <p>真鹅腿的成本根本不止16元</p>
+                        <p>真鹅腿的成本都不止16元</p>
                     </div>
                 </div>
             </div>
@@ -692,7 +719,7 @@
         <div id="learnCompletePage" class="page hidden">
             <div class="learn-complete-icon">📚</div>
             <h2 class="learn-complete-title">学习完成！</h2>
-            <p class="learn-complete-desc">你已经掌握了鹅腿和鸭腿的区别，现在来实战测试一下吧！</p>
+            <p class="learn-complete-desc">你已经掌握了鹅腿和鸭腿的区别，现在来实战吧！</p>
             <button class="btn btn-primary" onclick="startTest()">开始测试</button>
         </div>
 
@@ -701,7 +728,7 @@
             <div class="level5-header">
                 <div class="level-progress">第 5 关 / 共 5 关（最终关）</div>
                 <h2 class="level-title">请挑选你的鹅腿！</h2>
-                <p class="level-desc">鹅腿阿姨的后厨被查封前，留下了最后一批腿。20根里混入了鸭腿——请把所有鹅腿点出来！</p>
+                <p class="level-desc">鹅腿阿姨的后厨被查封前，留下了最后一批腿。请把其中所有的鹅腿点出来！</p>
                 <p class="level5-subtitle">（提示：鹅腿更大、骨骼更粗、颜色更深）</p>
             </div>
             <div class="grid-container" id="gridContainer"></div>
@@ -712,6 +739,7 @@
 
         <!-- 结果页 -->
         <div id="resultPage" class="page result-page hidden">
+            <div class="result-rank-name" id="resultRankName">段位名称</div>
             <div class="result-score">
                 <div class="score-number" id="scoreNumber">0</div>
                 <div class="score-label">你的成绩</div>
@@ -770,16 +798,15 @@
         // 第5关：8根鹅腿的位置（随机分布）
         function generateLevel5Grid() {
             const grid = [];
-            const goosePositions = [];
-            // 随机选择8个位置放鹅腿
-            while (goosePositions.length < 8) {
+            const typeAPositions = [];
+            while (typeAPositions.length < 8) {
                 const pos = Math.floor(Math.random() * 20);
-                if (!goosePositions.includes(pos)) {
-                    goosePositions.push(pos);
+                if (!typeAPositions.includes(pos)) {
+                    typeAPositions.push(pos);
                 }
             }
             for (let i = 0; i < 20; i++) {
-                grid.push(goosePositions.includes(i) ? 'goose' : 'duck');
+                grid.push(typeAPositions.includes(i) ? 'typeA' : 'typeB');
             }
             return grid;
         }
@@ -835,9 +862,9 @@
                 correct: null,
                 feedback: {
                     any: {
-                        icon: '🤔',
-                        title: '鹅腿阿姨的后厨里没有鹅腿~',
-                        desc: '原来阿姨进的货全都是鸭腿！真正的鹅腿根本不会出现在这里——成本太高了。让我们继续学习如何辨别吧！'
+                        icon: '❌',
+                        title: '答错了！',
+                        desc: '鹅腿阿姨的后厨里根本没有鹅腿~'
                     }
                 }
             }
@@ -848,42 +875,42 @@
             {
                 min: 6,
                 max: 8,
-                name: '鹅腿鉴定师',
+                name: '鉴定为广东人',
                 icon: '<svg class="rank-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M32 4L16 20v24c0 8.8 7.2 16 16 16s16-7.2 16-16V20L32 4z" fill="#FFD700"/><path d="M32 12v36c0 6.6-5.4 12-12 12H20v-8h4v-4h-4v-4h4v-4h-4v-4h4v-4h-4v-4h4v-4h4v-4h-4V8l8-8 8 8v4h-4v4h4v4h-4v4h4v4h-4v4h4v4h-4v4h4v8h-4c-6.6 0-12-5.4-12-12V12z" fill="#FFA500"/></svg>',
-                title: '恭喜！你是天生的鹅腿鉴定师',
-                desc: '北大清华学生吃了三年没吃出来的东西，你一眼就看穿了。鹅腿阿姨见到你只能绕道走。你的味觉和眼力，值这个价。'
+                title: '一道题暴露身份',
+                desc: '语言已经无法描述你的NB，你TM一定是广东人！'
             },
             {
                 min: 2,
                 max: 5,
-                name: '资深吃货',
+                name: '鹅腿鉴定大师',
                 icon: '<svg class="rank-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 44h-8v-8h8v8zm0-16h-8v-8h8v8zm16 16h-8v-8h8v8zm0-16h-8v-8h8v8z" fill="#D85A30"/><path d="M48 20c-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8zm0 12c-2.2 0-4-1.8-4-4s1.8-4 4-4 4 1.8 4 4-1.8 4-4 4z" fill="#D85A30"/></svg>',
-                title: '不错！你比大多数学生更懂吃',
-                desc: '眼力相当不错，大部分题都答对了。下次在街边买烤腿，记得仔细掂一掂、看一看颜色——别再被「鹅腿阿姨」们骗了。'
+                title: '恭喜！你是天生的鹅腿鉴定师',
+                desc: '北大清华学生吃了三年没吃出来的东西，你一眼就看穿了，鹅腿阿姨把你踢出了群！'
             },
             {
                 min: -2,
                 max: 1,
-                name: '普通学生',
+                name: '普通吃货',
                 icon: '<svg class="rank-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M48 8H16c-4.4 0-8 3.6-8 8v32c0 4.4 3.6 8 8 8h32c4.4 0 8-3.6 8-8V16c0-4.4-3.6-8-8-8z" fill="#4A90D9"/><path d="M24 40H16v-8h8v8zm0-12H16v-8h8v8zm16 12h-8v-8h8v8zm0-12h-8v-8h8v8z" fill="#fff"/></svg>',
-                title: '及格——和北大学生差不多',
-                desc: '你和那些排队买鹅腿的学生处于同一水平线上。吃了也许能吃出点不对劲，但不敢确定，最后还是咽下去了。——就这样被骗了三年。'
+                title: '鸡腿都能当鹅腿卖给你',
+                desc: '你和那些排队买鹅腿的学生处于同一水平线上，在美食鉴赏方面缺乏经验，还是要多吃多练！'
             },
             {
                 min: -7,
                 max: -3,
-                name: '味觉钝感者',
+                name: 'LSP',
                 icon: '<svg class="rank-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="24" fill="#FFD93D"/><path d="M32 20v24M20 32h24" stroke="#333" stroke-width="4" stroke-linecap="round"/></svg>',
-                title: '呃……你可能真的吃不出来',
-                desc: '鹅腿阿姨最喜欢的顾客类型。端上来什么吃什么，从不多问。你的钱包，是老板们的快乐源泉。'
+                title: 'Are you fucking kidding me?',
+                desc: '同学，你是来挑鹅腿的，你的眼里不能只有黑丝！'
             },
             {
                 min: -12,
                 max: -8,
-                name: '行走的冤大头',
+                name: '？？？？',
                 icon: '<svg class="rank-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="24" fill="#FF6B6B"/><path d="M24 28c-2 2-4 4-4 8s2 6 4 8 4-2 4-6-2-6-4-8zm16 0c2 2 4 4 4 8s-2 6-4 8-4-2-4-6 2-6 4-8z" fill="#fff"/><path d="M20 36h24" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>',
-                title: '建议你去检查一下家里的「鹅腿」',
-                desc: '你可能已经吃了很多年「鹅腿」，但其实都是鸭腿。没关系，不是你的错——是市场太复杂。但从今天起，你已经知道该怎么辨别了。'
+                title: '请立刻、马上离开我的网站',
+                desc: '我不想跟你说了'
             }
         ];
 
@@ -1029,34 +1056,32 @@
             }
         }
 
-        // 鹅腿和鸭腿的SVG图标（备用）
-        const gooseSVG = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cellipse cx='50' cy='50' rx='35' ry='45' fill='%238B2500'/%3E%3Cellipse cx='50' cy='50' rx='25' ry='35' fill='%23A04000'/%3E%3Crect x='45' y='5' width='10' height='20' rx='3' fill='%23C4A484'/%3E%3Ccircle cx='50' cy='5' r='6' fill='%23D4B896'/%3E%3Cellipse cx='35' cy='50' rx='10' ry='25' fill='%236B1F00' opacity='0.3'/%3E%3C/svg%3E`;
-        const duckSVG = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cellipse cx='50' cy='50' rx='28' ry='36' fill='%23F4A58A'/%3E%3Cellipse cx='50' cy='50' rx='20' ry='28' fill='%23F8C4A8'/%3E%3Crect x='45' y='8' width='10' height='16' rx='2' fill='%23D4B896'/%3E%3Ccircle cx='50' cy='8' r='5' fill='%23E0C8A0'/%3E%3Cellipse cx='38' cy='50' rx='8' ry='20' fill='%23D99580' opacity='0.3'/%3E%3C/svg%3E`;
-
-        // 图片配置
-        const gooseImages = [
-            { path: './images/goose01.jpg', type: 'goose' },
-            { path: './images/goose02.jpg', type: 'goose' },
-            { path: './images/goose03.png', type: 'goose' },
-            { path: './images/goose04.png', type: 'goose' },
-            { path: './images/goose05.png', type: 'goose' },
-            { path: './images/goose06.png', type: 'goose' },
-            { path: './images/goose07.png', type: 'goose' },
-            { path: './images/goose08.png', type: 'goose' }
+        // 隐藏的类型A图片（8张）
+        const typeAImages = [
+            { path: './images/02.jpg', type: 'typeA' },
+            { path: './images/07.jpg', type: 'typeA' },
+            { path: './images/08.png', type: 'typeA' },
+            { path: './images/09.png', type: 'typeA' },
+            { path: './images/12.png', type: 'typeA' },
+            { path: './images/15.png', type: 'typeA' },
+            { path: './images/16.png', type: 'typeA' },
+            { path: './images/19.png', type: 'typeA' }
         ];
-        const duckImages = [
-            { path: './images/duck01.png', type: 'duck' },
-            { path: './images/duck02.png', type: 'duck' },
-            { path: './images/duck03.png', type: 'duck' },
-            { path: './images/duck04.png', type: 'duck' },
-            { path: './images/duck05.png', type: 'duck' },
-            { path: './images/duck06.png', type: 'duck' },
-            { path: './images/duck07.png', type: 'duck' },
-            { path: './images/duck08.png', type: 'duck' },
-            { path: './images/duck09.png', type: 'duck' },
-            { path: './images/duck10.png', type: 'duck' },
-            { path: './images/duck11.png', type: 'duck' },
-            { path: './images/duck12.png', type: 'duck' }
+
+        // 隐藏的类型B图片（12张）
+        const typeBImages = [
+            { path: './images/01.png', type: 'typeB' },
+            { path: './images/03.png', type: 'typeB' },
+            { path: './images/04.png', type: 'typeB' },
+            { path: './images/05.png', type: 'typeB' },
+            { path: './images/06.png', type: 'typeB' },
+            { path: './images/10.png', type: 'typeB' },
+            { path: './images/11.png', type: 'typeB' },
+            { path: './images/13.png', type: 'typeB' },
+            { path: './images/14.png', type: 'typeB' },
+            { path: './images/17.png', type: 'typeB' },
+            { path: './images/18.png', type: 'typeB' },
+            { path: './images/20.png', type: 'typeB' }
         ];
 
         // 洗牌算法
@@ -1072,7 +1097,7 @@
         // 初始化第5关
         function initLevel5() {
             // 合并所有图片并打乱顺序
-            const allImages = [...gooseImages, ...duckImages];
+            const allImages = [...typeAImages, ...typeBImages];
             level5Grid = shuffleArray(allImages);
             level5Selected = new Array(20).fill(false);
             
@@ -1097,7 +1122,7 @@
                 img.onload = () => {};
                 img.onerror = () => {
                     item.style.backgroundImage = 'none';
-                    item.style.backgroundColor = imageData.type === 'goose' ? '#8B2500' : '#F4A58A';
+                    item.style.backgroundColor = '#E0E0E0';
                 };
                 img.src = imageData.path;
                 
@@ -1130,7 +1155,7 @@
             
             level5Selected.forEach((selected, index) => {
                 if (selected) {
-                    if (level5Grid[index].type === 'goose') {
+                    if (level5Grid[index].type === 'typeA') {
                         correctCount++;
                     } else {
                         wrongCount++;
@@ -1149,10 +1174,10 @@
         function showResult() {
             currentLevel = 6;
             updateProgress();
-            
+
             // 显示分数
             document.getElementById('scoreNumber').textContent = score;
-            
+
             // 确定段位
             let rank = ranks[4]; // 默认最低段位
             for (const r of ranks) {
@@ -1161,12 +1186,13 @@
                     break;
                 }
             }
-            
+
             // 设置段位信息
+            document.getElementById('resultRankName').textContent = rank.name;
             document.getElementById('resultIcon').innerHTML = rank.icon;
             document.getElementById('resultTitle').textContent = rank.title;
             document.getElementById('resultDesc').textContent = rank.desc;
-            
+
             showPage('resultPage');
         }
 
