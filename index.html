@@ -1094,7 +1094,16 @@
             return shuffled;
         }
 
-        // 初始化第5关
+        // 预加载第 5 关图片
+        function preloadLevel5Images() {
+            const allImages = [...typeAImages, ...typeBImages];
+            allImages.forEach(imageData => {
+                const img = new Image();
+                img.src = imageData.path;
+            });
+        }
+
+        // 初始化第 5 关
         function initLevel5() {
             // 合并所有图片并打乱顺序
             const allImages = [...typeAImages, ...typeBImages];
@@ -1205,10 +1214,14 @@
             hasCompletedLearning = false;
             updateProgress();
             showPage('startPage');
+            // 重新预加载图片
+            preloadLevel5Images();
         }
 
         // 初始化
         updateProgress();
+        // 预加载第 5 关图片
+        preloadLevel5Images();
     </script>
 </body>
 </html>
